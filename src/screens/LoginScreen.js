@@ -6,11 +6,13 @@ import {
   StyleSheet,
   Text,
   View,
+  Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {theme} from '../theme';
 import BorderedInput from '../components/BorderedInput';
 import CustomButton from '../components/CustomButton';
+import {signUp, signIn} from '../lib/auth';
 
 const LoginScreen = ({navigation, route}) => {
   const {isSignup} = route.params ?? {};
@@ -21,6 +23,7 @@ const LoginScreen = ({navigation, route}) => {
     phoneNumber: '',
     phoneConfirmNumber: '',
   });
+  const [loading, setLoading] = useState();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
   const phoneNumberRef = useRef();
@@ -30,9 +33,20 @@ const LoginScreen = ({navigation, route}) => {
     setForm({...form, [name]: value});
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     Keyboard.dismiss();
-    console.log(form);
+    const {email, password} = form;
+    const info = {email, password};
+    setLoading(true);
+    try {
+      const {user} = await signUp(info);
+      console.log(user);
+    } catch (e) {
+      Alert.alert('실패');
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
