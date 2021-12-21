@@ -10,24 +10,25 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {theme} from '../theme';
-import BorderedInput from '../components/BorderedInput';
-import CustomButton from '../components/CustomButton';
 import {signUp, signIn} from '../lib/auth';
+import SignForm from '../components/SignForm';
+import SignButtons from '../components/SignButtons';
+import {createUser, getUser} from '../lib/users';
+import {useNavigation} from '@react-navigation/native';
+import {useUserContext} from '../contexts/UserContext';
 
 const LoginScreen = ({navigation, route}) => {
-  const {isSignup} = route.params ?? {};
+  const {isSignup} = route.params || {};
   const [form, setForm] = useState({
     email: '',
     password: '',
+    nickname: '',
     confirmPassword: '',
     phoneNumber: '',
-    phoneConfirmNumber: '',
+    phoneNumberConfirm: '',
   });
   const [loading, setLoading] = useState();
-  const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
-  const phoneNumberRef = useRef();
-  const phoneConfirmNumberRef = useRef();
+  const {setUser} = useUserContext();
 
   const createChangeTextHandler = name => value => {
     setForm({...form, [name]: value});
@@ -35,15 +36,39 @@ const LoginScreen = ({navigation, route}) => {
 
   const onSubmit = async () => {
     Keyboard.dismiss();
-    const {email, password} = form;
+    const {email, password, confirmPassword} = form;
     const info = {email, password};
+
+    if (isSignup && password !== confirmPassword) {
+      Alert.alert('실패', '비밀번호가 일치하지 않습니다.');
+      return;
+    }
     setLoading(true);
     try {
-      const {user} = await signUp(info);
-      console.log(user);
+      const {user} = isSignup ? await signUp(info) : await signIn(info);
+      const profile = await getUser(user.uid);
+      if (!profile) {
+        const userInfo = {
+          id: user.uid,
+          nickname: form.nickname,
+          photoURL: null,
+          phoneNumber: form.phoneNumber,
+        };
+        createUser(userInfo);
+        setUser(userInfo);
+        Alert.alert('확인', '회원가입에 성공하였습니다.');
+      } else {
+        setUser(profile);
+      }
     } catch (e) {
-      Alert.alert('실패');
-      console.log(e);
+      const messages = {
+        'auth/email-already-in-use': '이미 가입된 이메일입니다.',
+        'auth/wrong-password': '잘못된 비밀번호입니다.',
+        'auth/user-not-found': '존재하지 않는 계정입니다.',
+        'auth/invalid-email': '유효하지 않는 이메일 주소입니다.',
+      };
+      const msg = messages[e.code] || `${isSignup ? '가입' : '로그인'} 실패`;
+      Alert.alert('실패', msg);
     } finally {
       setLoading(false);
     }
@@ -57,117 +82,17 @@ const LoginScreen = ({navigation, route}) => {
       <SafeAreaView style={styles.fullscreen}>
         <Text style={styles.text}>가노가노</Text>
         <View style={styles.form}>
-          <BorderedInput
-            hasMarginBottom
-            placeholder="이메일"
-            value={form.email}
-            onChangeText={createChangeTextHandler('email')}
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoCompleteType="email"
-            keyboardType="email-address"
-            returnKeyType="next"
-            onSubmitEditing={() => passwordRef.current.focus()}
+          <SignForm
+            isSignup={isSignup}
+            onSubmit={onSubmit}
+            form={form}
+            createChangeTextHandler={createChangeTextHandler}
           />
-          <BorderedInput
-            value={form.password}
-            onChangeText={createChangeTextHandler('password')}
-            hasMarginBottom
-            placeholder="비밀번호"
-            textContentType="oneTimeCode"
-            secureTextEntry
-            ref={passwordRef}
-            returnKeyType={isSignup ? 'next' : 'done'}
-            onSubmitEditing={() => {
-              if (isSignup) {
-                confirmPasswordRef.current.focus();
-              }
-            }}
+          <SignButtons
+            isSignup={isSignup}
+            onSubmit={onSubmit}
+            loading={loading}
           />
-          {isSignup && (
-            <BorderedInput
-              placeholder="비밀번호 확인"
-              textContentType="oneTimeCode"
-              value={form.confirmPassword}
-              onChangeText={createChangeTextHandler('confirmPassword')}
-              secureTextEntry={true}
-              ref={confirmPasswordRef}
-              returnKeyType="next"
-              onSubmitEditing={() => phoneNumberRef.current.focus()}
-            />
-          )}
-          <View style={[styles.buttons, isSignup && styles.center]}>
-            {isSignup ? (
-              <>
-                <View style={styles.phoneAuth}>
-                  <View style={styles.phoneAuthLeft}>
-                    <BorderedInput
-                      value={form.phoneNumber}
-                      onChangeText={createChangeTextHandler('phoneNumber')}
-                      hasMarginBottom
-                      placeholder="휴대전화"
-                      ref={phoneNumberRef}
-                      returnKeyType="done"
-                      keyboardType="phone-pad"
-                    />
-                  </View>
-                  <View style={styles.phoneAuthRight}>
-                    <CustomButton
-                      title="인증요청"
-                      onPress={() => {
-                        phoneConfirmNumberRef.current.focus();
-                      }}
-                    />
-                  </View>
-                </View>
-                <BorderedInput
-                  hasMarginBottom
-                  placeholder="인증번호"
-                  vlaue={form.phoneConfirmNumber}
-                  onChangeText={createChangeTextHandler('phoneConfirmNumber')}
-                  ref={phoneConfirmNumberRef}
-                  returnKeyType="done"
-                  keyboardType="number-pad"
-                />
-                <CustomButton
-                  title="회원가입"
-                  hasMarginBottom
-                  onPress={onSubmit}
-                />
-                <CustomButton
-                  title="로그인"
-                  onPress={() => {
-                    navigation.goBack();
-                  }}
-                  buttonTheme="secondary"
-                />
-              </>
-            ) : (
-              <>
-                <CustomButton title="로그인" onPress={onSubmit} />
-                <CustomButton
-                  title="(임시)로그인후 홈화면"
-                  onPress={() => {
-                    navigation.push('MainTab');
-                  }}
-                  buttonTheme="secondary"
-                />
-                <View style={styles.textContainer}>
-                  <CustomButton
-                    title="아이디/비밀번호 찾기"
-                    buttonTheme="secondary"
-                  />
-                  <CustomButton
-                    title="회원가입"
-                    buttonTheme="secondary"
-                    onPress={() => {
-                      navigation.push('Login', {isSignup: true});
-                    }}
-                  />
-                </View>
-              </>
-            )}
-          </View>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -192,27 +117,6 @@ const styles = StyleSheet.create({
     marginTop: 64,
     width: '90%',
     paddingHorizontal: 16,
-  },
-  buttons: {
-    marginTop: 64,
-  },
-  textContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  center: {
-    justifyContent: 'center',
-  },
-  phoneAuth: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  phoneAuthLeft: {
-    flex: 3,
-    marginRight: 16,
-  },
-  phoneAuthRight: {
-    flex: 1,
   },
   keyboardAvoidingView: {
     flex: 1,
