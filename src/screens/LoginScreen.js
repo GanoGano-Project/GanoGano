@@ -48,14 +48,14 @@ const LoginScreen = ({navigation, route}) => {
       const {user} = isSignup ? await signUp(info) : await signIn(info);
       const profile = await getUser(user.uid);
       if (!profile) {
-        const user = {
+        const userInfo = {
           id: user.uid,
           nickname: form.nickname,
           photoURL: null,
           phoneNumber: form.phoneNumber,
         };
-        createUser(user);
-        setUser(user);
+        createUser(userInfo);
+        setUser(userInfo);
         Alert.alert('확인', '회원가입에 성공하였습니다.');
       } else {
         setUser(profile);

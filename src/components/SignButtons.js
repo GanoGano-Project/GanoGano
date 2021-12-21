@@ -28,20 +28,25 @@ const SignButtons = ({isSignup, onSubmit, loading}) => {
   return (
     <View style={[styles.buttons, isSignup && styles.center]}>
       <CustomButton title={primaryTitle} hasMarginBottom onPress={onSubmit} />
-      <CustomButton
-        title={secondaryTitle}
-        buttonTheme="secondary"
-        onPress={onSecondaryButtonPress}
-      />
-      {isSignup || (
+      {isSignup ? (
         <>
           <CustomButton
+            title={secondaryTitle}
+            buttonTheme="secondary"
+            onPress={onSecondaryButtonPress}
+          />
+        </>
+      ) : (
+        <>
+          {/*
+            <CustomButton
             title="(임시)로그인후 홈화면"
             onPress={() => {
               navigation.push('MainTab');
             }}
             buttonTheme="secondary"
           />
+          */}
           <View style={styles.textContainer}>
             <CustomButton
               title="아이디/비밀번호 찾기"

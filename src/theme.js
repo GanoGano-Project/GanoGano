@@ -15,4 +15,5 @@ export const theme = {
   text: colors.black,
   inputBackground: colors.grey_0,
   inputText: colors.white,
+  grayLine: colors.grey_2,
 };
