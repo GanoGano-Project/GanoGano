@@ -27,6 +27,7 @@ const SettingScreen = () => {
         <View>
           <Text style={styles.job}>RN</Text>
           <Text style={styles.nickname}>{user.nickname} 님</Text>
+          {/* <Text style={styles.nickname}>닉네임 님</Text> */}
         </View>
       </View>
       <View style={styles.settingBlocks}>
