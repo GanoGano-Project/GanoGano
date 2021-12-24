@@ -9,13 +9,13 @@ import {
   Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {theme} from '../theme';
-import {signUp, signIn} from '../lib/auth';
-import SignForm from '../components/SignForm';
-import SignButtons from '../components/SignButtons';
-import {createUser, getUser} from '../lib/users';
+import {theme} from '../../theme';
+import {signUp, signIn} from '../../lib/auth';
+import SignForm from './SignForm';
+import SignButtons from './SignButtons';
+import {createUser, getUser} from '../../lib/users';
 import {useNavigation} from '@react-navigation/native';
-import {useUserContext} from '../contexts/UserContext';
+import {useUserContext} from '../../contexts/UserContext';
 
 const LoginScreen = ({navigation, route}) => {
   const {isSignup} = route.params || {};

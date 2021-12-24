@@ -1,7 +1,7 @@
 import React from 'react';
 import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import CustomButton from './CustomButton';
+import CustomButton from '../../components/CustomButton';
 
 const SignButtons = ({isSignup, onSubmit, loading}) => {
   const navigation = useNavigation();

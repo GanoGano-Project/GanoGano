@@ -1,13 +1,10 @@
-import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {StyleSheet, Text, View, Pressable, Platform, Image} from 'react-native';
-import CustomButton from '../components/CustomButton';
-import {theme} from '../theme';
-import SettingBlock from '../components/SettingBlock';
-import {useUserContext} from '../contexts/UserContext';
+import {theme} from '../../theme';
+import SettingBlock from './SettingBlock';
+import {useUserContext} from '../../contexts/UserContext';
 
 const SettingScreen = () => {
-  const navigation = useNavigation();
   const {user} = useUserContext();
 
   const settings = [
@@ -23,7 +20,7 @@ const SettingScreen = () => {
   return (
     <View style={styles.background}>
       <View style={styles.profile}>
-        <Image source={require('../assets/user.png')} style={styles.image} />
+        <Image source={require('../../assets/user.png')} style={styles.image} />
         <View>
           <Text style={styles.job}>RN</Text>
           <Text style={styles.nickname}>{user.nickname} 님</Text>

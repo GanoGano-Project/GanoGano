@@ -1,7 +1,7 @@
 import React, {useRef} from 'react';
-import BorderedInput from './BorderedInput';
+import BorderedInput from '../../components/BorderedInput';
 import {StyleSheet, View} from 'react-native';
-import CustomButton from './CustomButton';
+import CustomButton from '../../components/CustomButton';
 
 const SignForm = ({isSignup, onSubmit, form, createChangeTextHandler}) => {
   const passwordRef = useRef();

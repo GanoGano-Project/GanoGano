@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import {useUserContext} from '../contexts/UserContext';
+import {useUserContext} from '../../contexts/UserContext';
 
 const MainScreen = () => {
   const {user} = useUserContext();
